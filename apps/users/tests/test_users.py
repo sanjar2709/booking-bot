@@ -86,3 +86,20 @@ async def test_several_first_updates_at_once(tg):
 
     async with SessionLocal() as db:
         assert await db.scalar(select(func.count()).select_from(User)) == 1
+
+
+async def test_name_with_html_characters(tg):
+    """A user called "Ali <Dev> & Co" used to break every message that mentioned the name."""
+    user = tg.user(1, 'Ali <Dev> & Co')
+    await tg.send(user, '/start')
+
+    replies = await tg.click(user, 'lang:en')
+
+    assert 'Ali &lt;Dev&gt; &amp; Co' in texts(replies)[1]
+
+
+def test_translation_values_are_escaped_but_templates_are_not():
+    assert t('booking_line', 'en', day='Mon', time='10:00', service='Cut & shave', specialist='<b>') == (
+        '📅 Mon, 10:00\n💈 Cut &amp; shave · 👤 &lt;b&gt;'
+    )
+    assert t('my_bookings', 'en') == '🗂 <b>Your bookings:</b>'

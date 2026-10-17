@@ -1,6 +1,7 @@
 """A fake Telegram for tests: updates go into the real dispatcher, replies are recorded instead of sent."""
 
 from datetime import datetime
+from html.parser import HTMLParser
 from itertools import count
 from typing import Any
 
@@ -11,6 +12,40 @@ from aiogram.types import CallbackQuery, Chat, Contact, Message, Update, User
 
 _ids = count(1)
 
+# Tags Telegram accepts in HTML parse mode
+TELEGRAM_TAGS = {
+    'b', 'strong', 'i', 'em', 'u', 'ins', 's', 'strike', 'del', 'a', 'code', 'pre', 'tg-spoiler', 'blockquote',
+}
+
+
+class TelegramHTMLChecker(HTMLParser):
+    """Fails the way Telegram does on text it can't parse, so broken HTML shows up in tests, not in production."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=False)
+        self.open_tags = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag not in TELEGRAM_TAGS:
+            raise ValueError(f"can't parse entities: unsupported start tag {tag!r}")
+        self.open_tags.append(tag)
+
+    def handle_endtag(self, tag):
+        if not self.open_tags or self.open_tags.pop() != tag:
+            raise ValueError(f"can't parse entities: unexpected end tag {tag!r}")
+
+    def handle_data(self, data):
+        if '&' in data or '<' in data:
+            raise ValueError("can't parse entities: unescaped & or <")
+
+    @classmethod
+    def check(cls, text: str):
+        checker = cls()
+        checker.feed(text)
+        checker.close()
+        if checker.open_tags:
+            raise ValueError(f"can't parse entities: unclosed tag {checker.open_tags[-1]!r}")
+
 
 class FakeSession(BaseSession):
     def __init__(self):
@@ -20,6 +55,8 @@ class FakeSession(BaseSession):
     # Same signature as BaseSession.make_request, hence the timeout argument
     async def make_request(self, bot: Bot, method: TelegramMethod, timeout: int | None = None) -> Any:  # noqa: ASYNC109
         self.requests.append(method)
+        if getattr(method, 'text', None):
+            TelegramHTMLChecker.check(method.text)
         if method.__returning__ is Message or getattr(method, 'text', None) is not None:
             chat_id = getattr(method, 'chat_id', None) or 1
             return Message(
