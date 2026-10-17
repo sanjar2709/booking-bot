@@ -39,4 +39,5 @@ TEXTS = {
     'cancelled': '❌ Yozilish bekor qilindi: {day}, {time}',
     'cancel_too_late': "Yozilishni kamida {hours} soat oldin bekor qilish mumkin. Iltimos, bizga qo'ng'iroq qiling: {phone}",
     'booking_not_found': 'Yozilish topilmadi yoki allaqachon bekor qilingan.',
+    'reminder': "⏰ Eslatma: bugun soat <b>{time}</b> da sizni kutamiz.\n\n💈 {service}\n👤 {specialist}\n📍 {address}\n\nKela olmasangiz, «🗂 Yozilishlarim» orqali bekor qiling.",
 }

@@ -20,6 +20,7 @@ BOOKING_DAYS_AHEAD = int(os.getenv('BOOKING_DAYS_AHEAD', 7))
 SLOT_STEP_MINUTES = int(os.getenv('SLOT_STEP_MINUTES', 30))
 MIN_NOTICE_MINUTES = int(os.getenv('MIN_NOTICE_MINUTES', 60))
 CANCEL_DEADLINE_HOURS = int(os.getenv('CANCEL_DEADLINE_HOURS', 2))
+REMIND_BEFORE_HOURS = int(os.getenv('REMIND_BEFORE_HOURS', 2))
 
 # Shown in the welcome message and under "Contacts"
 BUSINESS_NAME = os.getenv('BUSINESS_NAME', 'Barber House')

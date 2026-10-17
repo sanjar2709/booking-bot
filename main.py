@@ -9,6 +9,7 @@ from aiogram.fsm.storage.redis import RedisStorage
 
 from apps.bookings.handlers import router as bookings_router
 from apps.bookings.my_handlers import router as my_bookings_router
+from apps.bookings.reminders import reminder_loop
 from apps.users.handlers import router as users_router
 from apps.users.middlewares import UserMiddleware
 from core import settings
@@ -32,7 +33,11 @@ async def main():
         raise RuntimeError('BOT_TOKEN environment variable is not set')
 
     bot = Bot(settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    await create_dispatcher().start_polling(bot)
+    reminders = asyncio.create_task(reminder_loop(bot))
+    try:
+        await create_dispatcher().start_polling(bot)
+    finally:
+        reminders.cancel()
 
 
 if __name__ == '__main__':

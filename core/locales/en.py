@@ -39,4 +39,5 @@ TEXTS = {
     'cancelled': '❌ Booking cancelled: {day}, {time}',
     'cancel_too_late': 'Bookings can be cancelled at least {hours} hours in advance. Please call us: {phone}',
     'booking_not_found': 'Booking not found or already cancelled.',
+    'reminder': "⏰ Reminder: we're expecting you today at <b>{time}</b>.\n\n💈 {service}\n👤 {specialist}\n📍 {address}\n\nIf you can't come, cancel it in «🗂 My bookings».",
 }

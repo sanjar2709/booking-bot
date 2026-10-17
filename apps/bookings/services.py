@@ -88,6 +88,9 @@ async def create_booking(
         ends_at=starts_at + timedelta(minutes=service.duration_minutes),
         price=service.price,
     )
+    # Booked less than the reminder period ahead: they just saw the time, a reminder right away would be odd
+    if starts_at - now() <= timedelta(hours=settings.REMIND_BEFORE_HOURS):
+        booking.reminded_at = now()
     db.add(booking)
     try:
         await db.commit()
