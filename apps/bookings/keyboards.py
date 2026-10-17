@@ -4,8 +4,9 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from apps.bookings.models import Booking
 from apps.catalog.models import Service, Specialist
-from core.formatting import day_label, money
+from core.formatting import day_label, local, money
 from core.i18n import t
 
 
@@ -23,6 +24,11 @@ class DayCb(CallbackData, prefix='day'):
 
 class TimeCb(CallbackData, prefix='tm'):
     value: str  # 1430, ':' is the separator inside callback data
+
+
+class CancelCb(CallbackData, prefix='cnl'):
+    id: int
+    confirmed: bool = False
 
 
 class NavCb(CallbackData, prefix='nav'):
@@ -81,3 +87,20 @@ def phone_keyboard(lang: str) -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=True,
     )
+
+
+def my_bookings_keyboard(bookings: list[Booking], lang: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for booking in bookings:
+        starts = local(booking.starts_at)
+        text = t('btn_cancel_booking', lang, day=day_label(starts.date(), lang), time=f'{starts:%H:%M}')
+        builder.button(text=text, callback_data=CancelCb(id=booking.id))
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def ask_cancel_keyboard(booking_id: int, lang: str) -> InlineKeyboardMarkup:
+    confirmed = CancelCb(id=booking_id, confirmed=True).pack()
+    yes = InlineKeyboardButton(text=t('btn_yes_cancel', lang), callback_data=confirmed)
+    no = InlineKeyboardButton(text=t('btn_no', lang), callback_data=NavCb(to='my').pack())
+    return InlineKeyboardMarkup(inline_keyboard=[[yes, no]])

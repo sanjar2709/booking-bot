@@ -18,6 +18,10 @@ class SlotTakenError(Exception):
     pass
 
 
+class TooLateToCancelError(Exception):
+    pass
+
+
 def now() -> datetime:
     return datetime.now(TZ)
 
@@ -93,4 +97,28 @@ async def create_booking(
             raise SlotTakenError from None
         raise
     await db.refresh(booking)
+    return booking
+
+
+async def upcoming_bookings(db: AsyncSession, user: User) -> list[Booking]:
+    query = (
+        select(Booking)
+        .where(Booking.user_id == user.id, Booking.status == BookingStatus.CONFIRMED, Booking.starts_at > now())
+        .order_by(Booking.starts_at)
+    )
+    return list(await db.scalars(query))
+
+
+async def get_own_booking(db: AsyncSession, user: User, booking_id: int) -> Booking | None:
+    booking = await db.get(Booking, booking_id)
+    if booking is None or booking.user_id != user.id or booking.status != BookingStatus.CONFIRMED:
+        return None
+    return booking
+
+
+async def cancel_booking(db: AsyncSession, booking: Booking, by_admin=False) -> Booking:
+    if not by_admin and now() > booking.starts_at - timedelta(hours=settings.CANCEL_DEADLINE_HOURS):
+        raise TooLateToCancelError
+    booking.status = BookingStatus.CANCELLED
+    await db.commit()
     return booking
