@@ -7,6 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 
+from apps.admin.handlers import router as admin_router
 from apps.bookings.handlers import router as bookings_router
 from apps.bookings.my_handlers import router as my_bookings_router
 from apps.bookings.reminders import reminder_loop
@@ -21,6 +22,7 @@ def create_dispatcher() -> Dispatcher:
     dp = Dispatcher(storage=storage)
     dp.update.outer_middleware(DbSessionMiddleware())
     dp.update.outer_middleware(UserMiddleware())
+    dp.include_router(admin_router)
     dp.include_router(users_router)
     dp.include_router(my_bookings_router)
     dp.include_router(bookings_router)

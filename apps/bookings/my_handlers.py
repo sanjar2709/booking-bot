@@ -2,6 +2,7 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from apps.admin.notify import notify_admins
 from apps.users.models import User
 from core import settings
 from core.formatting import day_label, local
@@ -64,3 +65,4 @@ async def cancel(callback: CallbackQuery, callback_data: CancelCb, db: AsyncSess
         return
     await callback.message.edit_text(t('cancelled', lang, **when(booking, lang)))
     await callback.answer()
+    await notify_admins(callback.bot, db, 'admin_client_cancelled', booking)

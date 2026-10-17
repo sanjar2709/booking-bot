@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from apps.admin.notify import notify_admins
 from apps.catalog.models import Service, Specialist
 from apps.users.keyboards import main_menu
 from apps.users.models import User
@@ -186,6 +187,7 @@ async def confirm(callback: CallbackQuery, db: AsyncSession, state: FSMContext, 
         time=f'{booking.starts_at.astimezone(services.TZ):%H:%M}',
     ))
     await callback.answer()
+    await notify_admins(callback.bot, db, 'admin_new_booking', booking)
 
 
 # Navigation

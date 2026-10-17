@@ -26,6 +26,10 @@ def now() -> datetime:
     return datetime.now(TZ)
 
 
+def local_date(moment: datetime) -> date:
+    return moment.astimezone(TZ).date()
+
+
 async def active_services(db: AsyncSession) -> list[Service]:
     return list(await db.scalars(select(Service).where(Service.is_active).order_by(Service.id)))
 
