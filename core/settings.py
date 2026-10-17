@@ -14,6 +14,12 @@ ADMIN_IDS = {int(i) for i in os.getenv('ADMIN_IDS', '').split()}
 
 TIME_ZONE = 'Asia/Tashkent'
 
+# Booking
+
+BOOKING_DAYS_AHEAD = int(os.getenv('BOOKING_DAYS_AHEAD', 7))
+SLOT_STEP_MINUTES = int(os.getenv('SLOT_STEP_MINUTES', 30))
+MIN_NOTICE_MINUTES = int(os.getenv('MIN_NOTICE_MINUTES', 60))
+
 # Shown in the welcome message and under "Contacts"
 BUSINESS_NAME = os.getenv('BUSINESS_NAME', 'Barber House')
 BUSINESS_ADDRESS = os.getenv('BUSINESS_ADDRESS', 'Tashkent, Amir Temur street 15')
