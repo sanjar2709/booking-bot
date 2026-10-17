@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install ruff==0.17.1
+      - run: ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: bookingbot
+          POSTGRES_USER: bookingbot
+          POSTGRES_PASSWORD: bookingbot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bookingbot"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DB_NAME: bookingbot
+      DB_USER: bookingbot
+      DB_PASSWORD: bookingbot
+      DB_HOST: localhost
+      DB_PORT: '5432'
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements/*.txt
+      - run: pip install -r requirements/dev.txt
+      - name: Check migrations are up to date with models
+        run: |
+          alembic upgrade head
+          alembic check
+      - name: Run tests
+        run: pytest --cov --cov-report=term-missing --cov-fail-under=90
