@@ -1,4 +1,10 @@
+import asyncio
+
+from sqlalchemy import func, select
+
 from apps.common.tests.bot import buttons, texts
+from apps.users.models import User
+from core.db import SessionLocal
 from core.i18n import LANGUAGES, all_languages, t
 from core.locales import en, ru, uz
 
@@ -70,3 +76,13 @@ async def test_contacts(tg):
     replies = await tg.send(user, '📞 Contacts')
 
     assert 'Barber House' in texts(replies)[0]
+
+
+async def test_several_first_updates_at_once(tg):
+    """A new user's updates can arrive together and run in parallel, the user must be created once without errors."""
+    user = tg.user(1, 'Sanjar Samadov')
+
+    await asyncio.gather(*(tg.send(user, '/start') for _ in range(5)))
+
+    async with SessionLocal() as db:
+        assert await db.scalar(select(func.count()).select_from(User)) == 1
