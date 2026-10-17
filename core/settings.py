@@ -14,6 +14,12 @@ ADMIN_IDS = {int(i) for i in os.getenv('ADMIN_IDS', '').split()}
 
 TIME_ZONE = 'Asia/Tashkent'
 
+# Shown in the welcome message and under "Contacts"
+BUSINESS_NAME = os.getenv('BUSINESS_NAME', 'Barber House')
+BUSINESS_ADDRESS = os.getenv('BUSINESS_ADDRESS', 'Tashkent, Amir Temur street 15')
+BUSINESS_PHONE = os.getenv('BUSINESS_PHONE', '+998 90 123 45 67')
+BUSINESS_HOURS = os.getenv('BUSINESS_HOURS', '09:00 - 20:00')
+
 # Database
 
 DB_NAME = os.getenv('DB_NAME')
