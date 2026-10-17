@@ -267,35 +267,6 @@ GitHub.sublime-settings
 !.vscode/extensions.json
 .history
 
-.templates
-common/staticfiles/
-core/local_settings.py
-core/templates/index.html
-*.suo
-*.pyproj
-*.user
-*.sln
-.vscode/settings.json
+
 .env
-users.xlsx
-keys
-
-# FaceBridge — qulf fayllari va cron loglari
-run/
-logs/
-
-# Panel agent
-agent/dist/
-agent/build/
-agent/*.spec
-agent/config.ini
-agent/state.json
-agent/agent.log*
 staticfiles/
-
-# Android agent
-agent-android/build/
-agent-android/dist/
-
-# Imzo kalitlari zaxirasi — HECH QACHON repoga tushmasin
-.release-keys/
