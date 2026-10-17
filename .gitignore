@@ -277,7 +277,6 @@ core/templates/index.html
 *.sln
 .vscode/settings.json
 .env
-bot.py
 users.xlsx
 keys
 
